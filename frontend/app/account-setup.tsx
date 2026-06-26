@@ -167,7 +167,7 @@ export default function AccountsetupScreen(){
 
             {/* Name input */}
             <TextInput 
-                style={{ borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, padding: 16, width: '100%', fontSize: 18, marginBottom: 24, textAlign: 'center' }}
+                style={{ borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, padding: 16, width: '35%', fontSize: 18, marginBottom: 24, textAlign: 'center' }}
                 placeholder="Enter your Name"
                 value={name}
                 onChangeText={setName}
@@ -175,7 +175,7 @@ export default function AccountsetupScreen(){
 
             {/* Save Button */}
             <TouchableOpacity 
-                style={{ padding: 16, width: '100%', borderRadius: 9999, backgroundColor: '#22c55e' }}
+                style={{ padding: 16, width: '35%', borderRadius: 9999, backgroundColor: '#22c55e' }}
                 onPress={handleSave}
             >
                 <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: '700', fontSize: 18 }}>
