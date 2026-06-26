@@ -134,12 +134,35 @@ export default function AccountsetupScreen(){
             </Text>
             
             {/* Profile Image Component */}
-            <TouchableOpacity style={{ marginBottom: 24, position: 'relative' }} onPress={pickImage}>
-                <Image 
-                    style={{ width: 128, height: 128, borderRadius: 64, borderWidth: 2, borderColor: '#d1d5db' }}
-                    resizeMode="cover"
-                    source={profileImage ? { uri: profileImage } : require("../assets/images/icon.png")} 
-                />
+            <TouchableOpacity 
+                style={{ 
+                    width: 128, 
+                    height: 128, 
+                    borderRadius: 64, 
+                    borderWidth: 2, 
+                    borderColor: '#22c55e', 
+                    backgroundColor: '#f3f4f6', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    marginBottom: 24, 
+                    overflow: 'hidden' 
+                }} 
+                onPress={pickImage}
+            >
+                {profileImage ? (
+                    <Image 
+                        style={{ width: '100%', height: '100%' }}
+                        resizeMode="cover"
+                        source={{ uri: profileImage }} 
+                    />
+                ) : (
+                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={{ fontSize: 30, marginBottom: 4 }}>📷</Text>
+                        <Text style={{ fontSize: 13, fontWeight: '600', color: '#4b5563', textAlign: 'center' }}>
+                            Add profile
+                        </Text>
+                    </View>
+                )}
             </TouchableOpacity>
 
             {/* Name input */}
