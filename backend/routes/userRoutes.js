@@ -6,9 +6,15 @@ import path from "path";
 
 const router = express.Router();
 
+// Ensure uploads directory exists on startup to prevent Multer write crashes
+const uploadDir = "uploads";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 // Setup Multer for image uploads
 const storage = multer.diskStorage({
-  destination: "uploads/",
+  destination: uploadDir,
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
   }
@@ -16,29 +22,65 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Get user by Phone api
-// GET api/users/:phone
-router.get("/:phone", async (req, res) => {
-  try {
-    const user = await User.findOne({ phone: req.params.phone });
+// Centralized helper to format absolute profile image URL
+const getProfileImageUrl = (req, imagePath) => {
+  if (!imagePath) return null;
+  if (imagePath.startsWith("http")) return imagePath;
+  const separator = imagePath.startsWith("/") ? "" : "/";
+  return `${req.protocol}://${req.get('host')}${separator}${imagePath}`;
+};
 
-    // 1. FIXED: Always run the null-guard first before checking properties!
+// 1. ADDED: Get all users API (essential for starting chats in a WhatsApp clone)
+// GET /api/users/
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.find({});
+    const formattedUsers = users.map(user => ({
+      _id: user._id,
+      phone: user.phone,
+      name: user.name,
+      profileImage: getProfileImageUrl(req, user.profileImage)
+    }));
+    res.json(formattedUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 2. ADDED: Get user by ID API (essential for referencing users by database ID)
+// GET /api/users/id/:id
+router.get("/id/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    // 2. FIXED: Corrected spelling to user.profileImage (added missing 't')
-    // Also cleaned up string interpolation formatting spaces
-    const profileImageUrl = user.profileImage 
-      ? `${req.protocol}://${req.get('host')}${user.profileImage}`
-      : null;
-
-    // 3. FIXED: Removed the second duplicate res.json(user) call below this
     res.json({
       _id: user._id,
       phone: user.phone,
       name: user.name,
-      profileImage: profileImageUrl
+      profileImage: getProfileImageUrl(req, user.profileImage)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user by Phone api
+// GET /api/users/:phone
+router.get("/:phone", async (req, res) => {
+  try {
+    const user = await User.findOne({ phone: req.params.phone });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      _id: user._id,
+      phone: user.phone,
+      name: user.name,
+      profileImage: getProfileImageUrl(req, user.profileImage)
     });
 
   } catch (error) {
@@ -47,7 +89,7 @@ router.get("/:phone", async (req, res) => {
 });
 
 // Create User with image upload API
-// POST api/users/
+// POST /api/users/
 router.post("/", upload.single("profileImage"), async (req, res) => {
   const { phone, name } = req.body;
 
@@ -62,14 +104,19 @@ router.post("/", upload.single("profileImage"), async (req, res) => {
     user = new User({ phone, name, profileImage });
     await user.save();
 
-    res.status(201).json(user);
+    res.status(201).json({
+      _id: user._id,
+      phone: user.phone,
+      name: user.name,
+      profileImage: getProfileImageUrl(req, user.profileImage)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 // Setup User Profile - Update name for existing user
-// POST api/users/setup
+// POST /api/users/setup
 router.post("/setup", async (req, res) => {
   const { phone, name } = req.body;
 
@@ -88,12 +135,16 @@ router.post("/setup", async (req, res) => {
     }
     
     await user.save();
-    res.status(200).json(user);
+    res.status(200).json({
+      _id: user._id,
+      phone: user.phone,
+      name: user.name,
+      profileImage: getProfileImageUrl(req, user.profileImage)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Update Profile API
 // PUT /api/users/:id
@@ -121,7 +172,12 @@ router.put("/:id", upload.single('profileImage'), async (req, res) => {
     }
       
     await user.save();
-    res.json(user);
+    res.json({
+      _id: user._id,
+      phone: user.phone,
+      name: user.name,
+      profileImage: getProfileImageUrl(req, user.profileImage)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
