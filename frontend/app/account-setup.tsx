@@ -23,9 +23,9 @@ export default function AccountsetupScreen(){
         try {
             const response = await axios.get(`${API_URL}/users/${phone}`);
             if (response.data) {
-                setName(response.data.name);
+                setName(response.data.name || "");
                 setId(response.data._id);
-                setProfileImage(response.data.profileImage );
+                setProfileImage(response.data.profileImage || "");
             }
         } catch (error) {
             console.log("No User Found in MongoDB", error);
@@ -111,12 +111,17 @@ export default function AccountsetupScreen(){
 
     useEffect(() => {
         fetchUser();
+    }, [phone]);
 
+    useEffect(() => {
         const handleBackPress =()=>{
             router.replace("/");
             return true;
         }
-        BackHandler.addEventListener("hardwareBackPress",handleBackPress)
+        const subscription = BackHandler.addEventListener("hardwareBackPress",handleBackPress);
+        return () => {
+            subscription.remove();
+        };
     }, []); 
 
 
