@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Expo / React Native
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+frontend/expo-env.d.ts
+
+# Native folders (if any generated)
+/ios
+/android
+frontend/ios/
+frontend/android/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+
+# Uploads and temporary files
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/upo/*
+
+# Logs and Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# IDEs and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

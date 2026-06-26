@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "axios": "^1.18.0"
+  },
+  "devDependencies": {
+    "babel-preset-expo": "^56.0.15",
+    "nativewind": "^4.2.5",
+    "react-native-css-interop": "^0.2.5"
+  }
+}
