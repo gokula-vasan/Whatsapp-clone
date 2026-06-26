@@ -77,37 +77,31 @@ export default function AccountsetupScreen(){
             formData.append("phone", phone || "");
             formData.append("name", name);
 
-            if(profileImage && profileImage.startsWith("file://")){
-                formData.append("profileImage",{
-                    uri:profileImage,
-                    type:"image/jpeg",
-                    name:"profile.jpg"
-                })
+            if (profileImage && !profileImage.startsWith("http")) {
+                const imageFile = await getImageFile(profileImage);
+                formData.append("profileImage", imageFile as any);
             }
-          setLoading(true);
+            setLoading(true);
 
             let response;
-            if(Id){
-                response=await axios.put(`${API_URL}/users/${Id}`,formData ,{
-                headers:{"Content-Type": "multipart/form-data"}
-            })
-        }
-        else{
-            response=await axios.put(`${API_URL}/users`,formData ,{
-                headers:{"Content-Type": "multipart/form-data"}
-        })
-    }
+            if (Id) {
+                response = await axios.put(`${API_URL}/users/${Id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" }
+                });
+            } else {
+                response = await axios.post(`${API_URL}/users`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" }
+                });
+            }
 
-    if(response.data){
-        await AsyncStorage.setItem("user",JSON.stringify(response.data));
-        router.push("/chats");
-
-    }
-    else{
-        Alert.alert("Error","Something went wrong while saving your profile")
-    }
+            if (response.data) {
+                await AsyncStorage.setItem("user", JSON.stringify(response.data));
+                router.push("/chats");
+            } else {
+                Alert.alert("Error", "Something went wrong while saving your profile");
+            }
         } catch (error) {
-            console.log("Error saving profile:", error.message);
+            console.log("Error saving profile:", (error as any).message);
             
         }
         finally{

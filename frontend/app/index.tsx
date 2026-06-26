@@ -2,7 +2,7 @@ import { Text, Image, View, TouchableOpacity, ActivityIndicator } from 'react-na
 import { useRouter } from 'expo-router';
  import {useEffect,useState} from "react";
  import "../global.css";
- import {getUser} from "@util/storage";
+ import {getUser} from "@/util/storage";
 
 export default function WelcomeScreen() {
     const router = useRouter();

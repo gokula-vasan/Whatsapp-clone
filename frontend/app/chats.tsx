@@ -1,35 +1,32 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {useRouter} from "expo-router";
+import { useRouter } from "expo-router";
 import { TouchableOpacity, View, Text } from "react-native";
-import {useEffect} from "react";
-import {getUser} from "@/util/storage";
+import { useEffect } from "react";
+import { getUser } from "@/util/storage";
 
-export default function ChatsScreen(){
+export default function ChatsScreen() {
+    const router = useRouter();
 
-    const router=useRouter()
-    const logout=async()=>{
+    const logout = async () => {
         await AsyncStorage.removeItem("user");
-
         //redirect to welcome screen
         router.push("/");
-    }
+    };
 
-       const getUserData =async()=>{
-        const userdata =await getUser();
-         console.log(userdata, 'userdata');
-       }
+    const getUserData = async () => {
+        const userdata = await getUser();
+        console.log(userdata, 'userdata');
+    };
 
-    useEffect(()=>{
-       getUserData();
-       
-    })
+    useEffect(() => {
+        getUserData();
+    }, []);
 
-    const getUser=async()=>{
-        return await AsyncStorage.getItem('user')
-    }
-    return <View className="flex-1 items-center justify-senter">
-        <TouchableOpacity className="bg-red-500 rounded-full">
-            <Text className="text-white p-3">Logout</Text>
-        </TouchableOpacity>
-    </View>
+    return (
+        <View className="flex-1 items-center justify-center">
+            <TouchableOpacity onPress={logout} className="bg-red-500 rounded-full">
+                <Text className="text-white p-3">Logout</Text>
+            </TouchableOpacity>
+        </View>
+    );
 }
