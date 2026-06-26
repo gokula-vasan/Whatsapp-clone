@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.31.95.212:5000/api";
+const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.16.145.153:5000/api";
 
 export default function AccountsetupScreen(){
     const [name, setName] = useState("");
