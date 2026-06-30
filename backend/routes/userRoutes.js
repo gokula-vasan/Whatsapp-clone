@@ -70,7 +70,22 @@ router.get("/id/:id", async (req, res) => {
 // GET /api/users/:phone
 router.get("/:phone", async (req, res) => {
   try {
-    const user = await User.findOne({ phone: req.params.phone });
+    const rawPhone = req.params.phone;
+    let user = await User.findOne({ phone: rawPhone });
+
+    if (!user) {
+      // Normalize: remove '+', spaces, and check various permutations
+      const cleanPhone = rawPhone.replace(/[\s\+]/g, "");
+      user = await User.findOne({
+        $or: [
+          { phone: cleanPhone },
+          { phone: `+${cleanPhone}` },
+          { phone: ` ${cleanPhone}` }, // handles leading space in DB, e.g. " 919562462397"
+          { phone: ` +${cleanPhone}` },
+          { phone: rawPhone.trim() }
+        ]
+      });
+    }
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -94,14 +109,30 @@ router.post("/", upload.single("profileImage"), async (req, res) => {
   const { phone, name } = req.body;
 
   try {
-    let user = await User.findOne({ phone });
+    if (!phone) {
+      return res.status(400).json({ message: "Phone is required" });
+    }
+    
+    // Normalize clean phone to check for duplicates
+    const cleanPhone = phone.replace(/[\s\+]/g, "");
+    let user = await User.findOne({
+      $or: [
+        { phone: phone },
+        { phone: phone.trim() },
+        { phone: cleanPhone },
+        { phone: `+${cleanPhone}` },
+        { phone: ` ${cleanPhone}` }
+      ]
+    });
+    
     if (user) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const profileImage = req.file ? `/uploads/${req.file.filename}` : null;
     
-    user = new User({ phone, name, profileImage });
+    // Save phone with leading and trailing spaces trimmed to prevent space bugs
+    user = new User({ phone: phone.trim(), name, profileImage });
     await user.save();
 
     res.status(201).json({
@@ -125,10 +156,20 @@ router.post("/setup", async (req, res) => {
       return res.status(400).json({ message: "Phone and name are required" });
     }
 
-    let user = await User.findOne({ phone });
+    const cleanPhone = phone.replace(/[\s\+]/g, "");
+    let user = await User.findOne({
+      $or: [
+        { phone: phone },
+        { phone: phone.trim() },
+        { phone: cleanPhone },
+        { phone: `+${cleanPhone}` },
+        { phone: ` ${cleanPhone}` }
+      ]
+    });
+    
     if (!user) {
       // Create new user if doesn't exist
-      user = new User({ phone, name });
+      user = new User({ phone: phone.trim(), name });
     } else {
       // Update existing user's name
       user.name = name;

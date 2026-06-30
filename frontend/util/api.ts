@@ -5,7 +5,7 @@ const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.31.95.20:500
 export const fetchUser = async (phone: string) => {
         if (!phone) return;
         try {
-            const response = await axios.get(`${API_URL}/users/${phone}`);
+            const response = await axios.get(`${API_URL}/users/${encodeURIComponent(phone)}`);
             return response.data;
         } catch (error) {
             console.log("fetchUser API error", error);
