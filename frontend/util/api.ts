@@ -1,7 +1,7 @@
 import axios from "axios";
 import Constants from "expo-constants";
 
-const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.16.145.153:5000/api";
+const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.31.95.20:5000/api";
 export const fetchUser = async (phone: string) => {
         if (!phone) return;
         try {

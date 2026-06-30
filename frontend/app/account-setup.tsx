@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import{fetchUser, saveUser as saveUserAPI, updateUser} from "@/util/api";
 import {saveUser as saveUserStorage} from "@/util/storage";
 
-const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.16.145.153:5000/api";
+const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.31.95.20:5000/api";
 
 export default function AccountsetupScreen(){
     const [name, setName] = useState("");
