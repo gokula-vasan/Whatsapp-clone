@@ -4,6 +4,8 @@ import cors from "cors"; // <-- 1. Added CORS import
 import userRoutes from "./routes/userRoutes.js";
 import dotenv from "dotenv";
 import path from "path"
+import { Server } from "socket.io";
+import registerSocketHandlers from "./socket.js";
 
 dotenv.config();
 
@@ -37,6 +39,15 @@ app.get('/', (req, res) => {
 app.use("/api/users", userRoutes);
 
 // Start the server using the PORT variable
-app.listen(PORT, () => {
+ const server=app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}!`);
 });
+
+const io=new Server(server,{
+    cors:{
+        origin:"*",
+        methods:["GET","POST"]
+    }
+});
+
+registerSocketHandlers(io);

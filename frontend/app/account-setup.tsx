@@ -5,6 +5,8 @@ import Constants from "expo-constants";
 import { useState, useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import{fetchUser, saveUser as saveUserAPI, updateUser} from "@/util/api";
+import {saveUser as saveUserStorage} from "@/util/storage";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL || "http://172.16.145.153:5000/api";
 
@@ -18,14 +20,14 @@ export default function AccountsetupScreen(){
     const[loading,setLoading]=useState(false);
 
 
-    const fetchUser = async () => {
+    const loadUser = async () => {
         if (!phone) return;
         try {
-            const response = await axios.get(`${API_URL}/users/${phone}`);
-            if (response.data) {
-                setName(response.data.name || "");
-                setId(response.data._id);
-                setProfileImage(response.data.profileImage || "");
+          const data=  await fetchUser(phone)
+            if (data) {
+                setName(data.name || "");
+                setId(data._id);
+                setProfileImage(data.profileImage || "");
             }
         } catch (error) {
             console.log("No User Found in MongoDB", error);
@@ -85,17 +87,13 @@ export default function AccountsetupScreen(){
 
             let response;
             if (Id) {
-                response = await axios.put(`${API_URL}/users/${Id}`, formData, {
-                    headers: { "Content-Type": "multipart/form-data" }
-                });
+                response=await updateUser(Id,formData)
             } else {
-                response = await axios.post(`${API_URL}/users`, formData, {
-                    headers: { "Content-Type": "multipart/form-data" }
-                });
+                response = await saveUserAPI(formData)
             }
 
-            if (response.data) {
-                await AsyncStorage.setItem("user", JSON.stringify(response.data));
+            if (response) {
+                await saveUserStorage(response)
                 router.push("/chats");
             } else {
                 Alert.alert("Error", "Something went wrong while saving your profile");
@@ -110,7 +108,7 @@ export default function AccountsetupScreen(){
     }
 
     useEffect(() => {
-        fetchUser();
+        loadUser();
     }, [phone]);
 
     useEffect(() => {
